@@ -1,49 +1,72 @@
 .Screen {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 5;
-    background-color: rgba(0,0,0,0.15);
-    animation: ScreenEffect 0.05s ease infinite;
-    cursor: pointer;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background-color: rgba(0,0,0,0.15);
+  animation: ScreenEffect 0.05s ease infinite;
+  cursor: pointer;
+}
+
+@keyframes ScreenEffect {
+  0% { opacity: 0 }
+  50% { opacity: 1 }
+  100% { opacity: 0 }
+}
+
+.Pulse {
+  animation: Pulse 1.5s ease infinite;
+}
+
+@keyframes Pulse {
+  0% { opacity: 0 }
+  50% { opacity: 1 }
+  100% { opacity: 0 }
+}
+
+.DivClass {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #0F140F;
+  padding: 5% 5% 5% 5%;
+}
+
+.MatrixTextEffect {
+  color: rgba(125,225,125,0.75);
+  font-family: 'VT323', monospace;
+  font-size: 25px;
+  text-shadow: 0 0 5px rgba(125,225,125,0.5), 0 0 15px rgba(125,250,125,1);
+}
+
+body {
+  background: #0F0F0F;
+}
+
+.container {
+  width: 15rem;
+  height: 1.5rem;
+  background-color: #0F140F;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  transform-origin: left;
+  background-color: rgba(125,225,125,0.75);
+  animation: progress 1s infinite;
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(5%) translateX(-5%);
   }
-  
-  @keyframes ScreenEffect {
-    0% { opacity: 0 }
-    50% { opacity: 1 }
-    100% { opacity: 0 }
+  to {
+    transform: scaleX(75%) translateX(130%);
   }
-  
-  .Pulse {
-    animation: Pulse 1.5s ease infinite;
-  }
-  
-  @keyframes Pulse {
-    0% { opacity: 0 }
-    50% { opacity: 1 }
-    100% { opacity: 0 }
-  }
-  
-  .DivClass {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: #0F140F;
-    padding: 5% 5% 5% 5%;
-  }
-  
-  .MatrixTextEffect {
-    color: rgba(125,225,125,0.75);
-    font-family: 'VT323', monospace;
-    font-size: 25px;
-    text-shadow: 0 0 5px rgba(125,225,125,0.5), 0 0 15px rgba(125,250,125,1);
-  }
-  
-  body {
-    background: #0F0F0F;
-  }
+}
