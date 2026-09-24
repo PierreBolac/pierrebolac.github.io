@@ -60,6 +60,51 @@ html, body {
 
 @keyframes blink { 50% { opacity: 0; } }
 
+::selection { background: var(--fg); color: #050a05; text-shadow: none; }
+
+/* Fragment caché : invisible sauf si on sélectionne tout (Ctrl + A) */
+.ghost {
+	position: fixed;
+	right: 2vw;
+	bottom: 1.5vh;
+	z-index: 2;
+	max-width: 92vw;
+	color: #0a130a;
+	font: 20px 'VT323', monospace;
+	word-break: break-all;
+}
+
+/* Boîte de dialogue de la réponse */
+#dlg {
+	width: min(90vw, 480px);
+	padding: 1.4rem 1.8rem;
+	border: 1px solid var(--dim);
+	background: rgba(5, 10, 5, 0.96);
+	color: var(--fg);
+	font: 28px/1.25 'VT323', monospace;
+	text-align: center;
+	text-shadow: 0 0 4px var(--dim), 0 0 14px var(--glow);
+	box-shadow: 0 0 40px rgba(125, 250, 125, 0.25);
+}
+#dlg::backdrop { background: rgba(0, 0, 0, 0.75); }
+#dlg p { margin: 0; min-height: 1.25em; }
+#dlg input {
+	display: block;
+	width: 100%;
+	margin: 0.7rem 0;
+	padding: 0.2rem 0;
+	border: 0;
+	border-bottom: 1px solid var(--fg);
+	background: transparent;
+	color: var(--fg);
+	font: inherit;
+	letter-spacing: 0.15em;
+	text-align: center;
+	text-shadow: inherit;
+	outline: none;
+	caret-color: var(--fg);
+}
+
 /* Scène secrète : logo + messages + coordonnées */
 #stage {
 	display: none;
@@ -96,6 +141,7 @@ body.stage-on #rain { opacity: 0.18; }
 #stage p.big { font-size: 2.6em; letter-spacing: 0.3em; margin-bottom: 0.15em; }
 #stage p.warn { color: var(--warn); }
 #stage p.coord { color: var(--dim); font-size: 0.9em; }
+#stage p:first-child { margin-top: auto; }
 #stage p:last-child { margin-bottom: auto; }
 #stage p:last-child::after { content: '█'; margin-left: 2px; animation: blink 1s steps(2) infinite; }
 
