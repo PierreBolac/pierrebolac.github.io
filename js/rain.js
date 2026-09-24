@@ -63,8 +63,8 @@
 		p.textContent = '[' + '█'.repeat(filled).padEnd(20, '░') + '] ' + v.toFixed(2).padStart(5, ' ') + '%';
 	}
 
-	async function progress(target) {
-		const p = newLine('bar');
+	async function progress(target, root = term) {
+		const p = newLine('bar', root);
 		for (let v = 0; v < target; v += rnd(4) + 0.7) {
 			drawBar(p, v);
 			await sleep(50 + rnd(110));
@@ -176,7 +176,7 @@
 	})();
 
 	const grid = mask.map((row) => row.map(() => '3301'[rnd(4)]));
-	let shown = 0;
+	let shown = 0, logoTimer;
 
 	function drawLogo() {
 		let html = '';
@@ -194,7 +194,7 @@
 	function startLogo() {
 		shown = 0;
 		drawLogo();
-		setInterval(() => {
+		logoTimer = setInterval(() => {
 			if (shown < LH) shown++;
 			drawLogo();
 		}, 100);
@@ -227,14 +227,82 @@
 		ready = true;
 	}
 
-	async function unlock() {
+	/* ---------- Saison 2 : Vigenère + RSA + boîte de dialogue ---------- */
+	let s2ready = false;
+	const dlg = $('#dlg'), ans = $('#ans'), dmsg = $('#dmsg');
+
+	// La bonne réponse sert de clé pour déchiffrer le message de fin (AES-GCM).
+	// Une mauvaise réponse fait échouer le déchiffrement : rien n'est stocké en clair.
+	async function decryptWith(answer) {
+		const enc = new TextEncoder();
+		const base = await crypto.subtle.importKey('raw', enc.encode(answer), 'PBKDF2', false, ['deriveKey']);
+		const key = await crypto.subtle.deriveKey(
+			{ name: 'PBKDF2', salt: enc.encode(S2.salt), iterations: S2.iter, hash: 'SHA-256' },
+			base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+		const raw = Uint8Array.from(atob(S2.blob), (c) => c.charCodeAt(0));
+		const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: raw.slice(0, 12) }, key, raw.slice(12));
+		return new TextDecoder().decode(pt);
+	}
+
+	async function season2() {
 		busy = true;
 		glitch(700);
 		await type('ACCESS GRANTED', 'warn', 40, stage);
-		await type('THE FIRST WORD IS NEVER THE LAST', '', 40, stage);
-		await type('NEXT SEQUENCE LOADING ...', '', 40, stage);
-		// TODO : suite de l'énigme (nouvelle page, autre mot à taper, etc.)
+		await sleep(1300);
+		glitch(900);
+		clearInterval(logoTimer);
+		stage.replaceChildren();
+		console.log('%cE = 65537', 'color:#7de17d;font-size:18px');
+		await type('SEASON 2', 'big', 90, stage);
+		await sleep(700);
+		await type('THE FIRST PLACE WAS BUILT BY A MAN.', '', 40, stage);
+		await type('HIS FIRST NAME IS THE KEY.', '', 40, stage);
+		await type('THE CIPHER BEARS THE NAME OF ANOTHER FRENCHMAN.', '', 40, stage);
+		await sleep(1000);
+		for (const l of S2.cipher) await type(l, 'coord', 14, stage);
+		busy = false;
+		s2ready = true;
 	}
+
+	async function solved(msg) {
+		glitch(700);
+		await type('SEASON 2 COMPLETE', 'warn', 40, stage);
+		await progress(66.02, stage);
+		await sleep(900);
+		for (const l of msg.split('\n')) await type(l, '', 40, stage);
+		// TODO : saison 3
+	}
+
+	ans.addEventListener('keydown', async (e) => {
+		if (e.key !== 'Enter') return;
+		e.preventDefault();
+		const v = ans.value.replace(/\D/g, '');
+		if (!v) return;
+		dmsg.textContent = '...';
+		let msg;
+		try {
+			msg = await decryptWith(v);
+		} catch {
+			dmsg.textContent = 'THE DOOR STAYS SHUT.';
+			glitch(300);
+			ans.select();
+			return;
+		}
+		s2ready = false;
+		busy = true;
+		dlg.close();
+		solved(msg);
+	});
+
+	dlg.addEventListener('close', () => { dmsg.textContent = ''; ans.value = ''; });
+
+	addEventListener('keydown', (e) => {
+		if (e.key === 'Enter' && s2ready && !dlg.open) {
+			e.preventDefault();
+			dlg.showModal();
+			ans.focus();
+		}
+	});
 
 	addEventListener('keydown', (e) => {
 		if (e.key.length !== 1 || busy) return;
@@ -245,7 +313,7 @@
 		} else if (ready && buf === NEXT_WORD) {
 			buf = '';
 			ready = false;
-			unlock();
+			season2();
 		}
 	});
 
