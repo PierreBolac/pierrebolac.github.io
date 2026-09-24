@@ -60,6 +60,49 @@ html, body {
 
 @keyframes blink { 50% { opacity: 0; } }
 
+/* Scène secrète : logo + messages + coordonnées */
+#stage {
+	display: none;
+	position: fixed;
+	inset: 0;
+	z-index: 2;
+	flex-direction: column;
+	align-items: center;
+	padding: 4vh 4vw;
+	overflow-y: auto;
+	font-family: 'VT323', monospace;
+	font-size: clamp(20px, 2.6vw, 28px);
+	line-height: 1.25;
+	color: var(--fg);
+	text-align: center;
+	text-shadow: 0 0 4px var(--dim), 0 0 14px var(--glow);
+}
+
+body.stage-on #term { display: none; }
+body.stage-on #stage { display: flex; }
+body.stage-on #rain { opacity: 0.18; }
+
+#logo {
+	margin: auto 0 1.2rem;
+	font-family: 'VT323', monospace;
+	font-size: clamp(8px, 2.1vw, 16px);
+	line-height: 1;
+	letter-spacing: 0;
+	white-space: pre;
+}
+#logo i { font-style: normal; opacity: 0.45; }
+
+#stage p { margin: 0 0 0.3em; white-space: pre; }
+#stage p.big { font-size: 2.6em; letter-spacing: 0.3em; margin-bottom: 0.15em; }
+#stage p.warn { color: var(--warn); }
+#stage p.coord { color: var(--dim); font-size: 0.9em; }
+#stage p:last-child { margin-bottom: auto; }
+#stage p:last-child::after { content: '█'; margin-left: 2px; animation: blink 1s steps(2) infinite; }
+
+@media (max-width: 520px) {
+	#stage p { white-space: pre-wrap; }
+}
+
 /* Scanlines + vignette */
 .crt {
 	position: fixed;
