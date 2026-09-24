@@ -33,6 +33,56 @@
 		}
 	}, 50);
 
+	/* ---------- Son : petit clic de clavier à chaque caractère (Web Audio, aucun fichier) ---------- */
+	let ac = null, soundOn = false, noiseBuf, lastTick = 0;
+
+	function initAudio() {
+		if (!ac) {
+			ac = new (window.AudioContext || window.webkitAudioContext)();
+			noiseBuf = ac.createBuffer(1, Math.floor(ac.sampleRate * 0.05), ac.sampleRate);
+			const d = noiseBuf.getChannelData(0);
+			for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+		}
+		if (ac.state === 'suspended') ac.resume();
+	}
+
+	function tick() {
+		const now = performance.now();
+		if (!soundOn || !ac || now - lastTick < 28) return;
+		lastTick = now;
+		const t = ac.currentTime;
+		// « clic » : bruit filtré très court
+		const src = ac.createBufferSource();
+		src.buffer = noiseBuf;
+		const bp = ac.createBiquadFilter();
+		bp.type = 'bandpass';
+		bp.frequency.value = 1800 + rnd(1800);
+		bp.Q.value = 1.2;
+		const g = ac.createGain();
+		g.gain.setValueAtTime(0.09, t);
+		g.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+		src.connect(bp).connect(g).connect(ac.destination);
+		src.start(t);
+		src.stop(t + 0.04);
+		// « toc » : petite note grave
+		const o = ac.createOscillator();
+		const og = ac.createGain();
+		o.frequency.value = 120 + rnd(60);
+		og.gain.setValueAtTime(0.05, t);
+		og.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+		o.connect(og).connect(ac.destination);
+		o.start(t);
+		o.stop(t + 0.06);
+	}
+
+	const sndBtn = $('#snd');
+	sndBtn.addEventListener('click', () => {
+		soundOn = !soundOn;
+		if (soundOn) initAudio();
+		sndBtn.textContent = soundOn ? '[ SOUND ON ]' : '[ SOUND OFF ]';
+		sndBtn.blur(); // évite que la touche Entrée ne rebascule le bouton
+	});
+
 	/* ---------- Terminal ---------- */
 	const term = $('#term');
 
@@ -53,6 +103,7 @@
 		const p = newLine(cls, root);
 		for (const ch of text) {
 			p.textContent += ch;
+			if (ch !== ' ') tick();
 			await sleep(speed + rnd(35));
 		}
 		return p;
