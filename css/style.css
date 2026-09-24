@@ -1,72 +1,93 @@
-.Screen {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  background-color: rgba(0,0,0,0.15);
-  animation: ScreenEffect 0.05s ease infinite;
-  cursor: pointer;
+:root {
+	--bg: #050a05;
+	--fg: #7de17d;
+	--dim: rgba(125, 225, 125, 0.55);
+	--glow: rgba(125, 250, 125, 0.9);
+	--warn: #d8ff9a;
 }
 
-@keyframes ScreenEffect {
-  0% { opacity: 0 }
-  50% { opacity: 1 }
-  100% { opacity: 0 }
+* { box-sizing: border-box; }
+
+html, body {
+	margin: 0;
+	height: 100%;
+	background: var(--bg);
+	overflow: hidden;
 }
 
-.Pulse {
-  animation: Pulse 1.5s ease infinite;
+#rain {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0.35;
 }
 
-@keyframes Pulse {
-  0% { opacity: 0 }
-  50% { opacity: 1 }
-  100% { opacity: 0 }
+#term {
+	position: relative;
+	z-index: 2;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	padding: 6vh 6vw;
+	max-width: 900px;
+	font-family: 'VT323', monospace;
+	font-size: clamp(20px, 2.6vw, 28px);
+	line-height: 1.25;
+	color: var(--fg);
+	text-shadow: 0 0 4px var(--dim), 0 0 14px var(--glow);
+	animation: flicker 6s infinite;
 }
 
-.DivClass {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: #0F140F;
-  padding: 5% 5% 5% 5%;
+#term p {
+	margin: 0 0 0.35em;
+	white-space: pre-wrap;
+	word-break: break-all;
 }
 
-.MatrixTextEffect {
-  color: rgba(125,225,125,0.75);
-  font-family: 'VT323', monospace;
-  font-size: 25px;
-  text-shadow: 0 0 5px rgba(125,225,125,0.5), 0 0 15px rgba(125,250,125,1);
+#term p::before { content: '> '; color: var(--dim); }
+#term p.bar::before,
+#term p.hex::before { content: ''; }
+#term p.hex { color: var(--dim); }
+#term p.warn { color: var(--warn); }
+
+#term p:last-child::after {
+	content: '█';
+	margin-left: 2px;
+	animation: blink 1s steps(2) infinite;
 }
 
-body {
-  background: #0F0F0F;
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Scanlines + vignette */
+.crt {
+	position: fixed;
+	inset: 0;
+	z-index: 3;
+	pointer-events: none;
+	background:
+		repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,0.22) 3px),
+		radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.75) 100%);
 }
 
-.container {
-  width: 15rem;
-  height: 1.5rem;
-  background-color: #0F140F;
-  overflow: hidden;
+/* Petit scintillement discret (l'ancien strobe plein écran était rude pour les yeux) */
+@keyframes flicker {
+	0%, 100% { opacity: 1; }
+	92% { opacity: 1; }
+	93% { opacity: 0.82; }
+	94% { opacity: 1; }
+	97% { opacity: 0.9; }
 }
 
-.progress {
-  height: 100%;
-  transform-origin: left;
-  background-color: rgba(125,225,125,0.75);
-  animation: progress 1s infinite;
+/* Glitch déclenché par le JS */
+body.glitch #term {
+	transform: translateX(4px) skewX(-2deg);
+	text-shadow: -3px 0 rgba(255, 60, 90, 0.55), 3px 0 rgba(60, 255, 255, 0.45), 0 0 14px var(--glow);
 }
+body.glitch #rain { opacity: 0.7; }
 
-@keyframes progress {
-  from {
-    transform: scaleX(5%) translateX(-5%);
-  }
-  to {
-    transform: scaleX(75%) translateX(130%);
-  }
+@media (prefers-reduced-motion: reduce) {
+	#term { animation: none; }
+	body.glitch #term { transform: none; }
 }
