@@ -74,6 +74,21 @@ html, body {
 	word-break: break-all;
 }
 
+/* Bouton du son */
+#snd {
+	position: fixed;
+	top: 1.5vh;
+	right: 2vw;
+	z-index: 5;
+	padding: 0.3rem 0.5rem;
+	border: 0;
+	background: none;
+	color: var(--dim);
+	font: 20px 'VT323', monospace;
+	cursor: pointer;
+}
+#snd:hover, #snd:focus-visible { color: var(--fg); }
+
 /* Boîte de dialogue de la réponse */
 #dlg {
 	width: min(90vw, 480px);
